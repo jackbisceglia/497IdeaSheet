@@ -1,52 +1,32 @@
-import { Dispatch, FormEvent, SetStateAction, useState } from "react";
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import AddIdeaForm from "../components/AddIdeaForm";
 import Head from "next/head";
 import { Idea } from "@prisma/client";
+import IdeaCard from "../components/IdeaCard";
 import type { NextPage } from "next";
-import { UseTRPCMutationResult } from "@trpc/react/shared";
 import { trpc } from "../utils/trpc";
+import { useState } from "react";
 
 type PageContentTypes = {
   data: Idea[];
   refetch: any;
 };
 
-const IdeaCard = ({
-  idea,
-  deleteIdeaMutation,
+const RenderServerState = ({
+  load,
+  error,
 }: {
-  idea: Idea;
-  deleteIdeaMutation: UseTRPCMutationResult<any, any, any, any>;
-  refetch: any;
+  load: boolean;
+  error: boolean;
 }) => {
-  const handleDelete = () => {
-    deleteIdeaMutation.mutate(idea.id);
+  const getStateMessage = () => {
+    if (load) return "Loading...";
+    if (error) return "Error";
+
+    return "";
   };
 
-  return (
-    <div
-      key={idea.id}
-      className="my-4 flex  w-full max-w-md justify-between rounded-md bg-slate-200 px-4 py-2"
-    >
-      {/* Left */}
-      <div className="flex h-full w-max flex-col">
-        <h4 className="text-xl font-semibold">{idea.title}</h4>
-        <p className="w-full py-2">{idea.description}</p>
-      </div>
-      {/* Right */}
-      <div className="flex w-min flex-col items-end justify-between border-2 ">
-        <p>Date</p>
-        <button
-          onClick={handleDelete}
-          className="text-emerald-400 transition-colors duration-200 hover:text-emerald-600"
-        >
-          <span className="material-symbols-outlined">delete</span>
-        </button>
-      </div>
-    </div>
-  );
+  return <h1 className="py-10 text-3xl text-red-400">{getStateMessage()}</h1>;
 };
 
 const PageContent = ({ data, refetch }: PageContentTypes) => {
@@ -59,6 +39,12 @@ const PageContent = ({ data, refetch }: PageContentTypes) => {
     },
   });
   const addIdeaMutation = trpc.idea.deleteIdea.useMutation();
+  const rateIdeaMutation = trpc.idea.rateIdea.useMutation({
+    async onSuccess() {
+      // refetches posts after a post is added
+      await refetch();
+    },
+  });
 
   const toggleInputForm = () => setShouldShowInputForm(!shouldShowInputForm);
 
@@ -68,6 +54,7 @@ const PageContent = ({ data, refetch }: PageContentTypes) => {
     <IdeaCard
       idea={idea}
       deleteIdeaMutation={deleteIdeaMutation}
+      rateIdeaMutation={rateIdeaMutation}
       refetch={refetch}
       key={idea.id}
     />
@@ -99,23 +86,6 @@ const PageContent = ({ data, refetch }: PageContentTypes) => {
   );
 };
 
-const HandleServerState = ({
-  load,
-  error,
-}: {
-  load: boolean;
-  error: boolean;
-}) => {
-  const getStateMessage = () => {
-    if (load) return "Loading...";
-    if (error) return "Error";
-
-    return "";
-  };
-
-  return <h1 className="py-10 text-3xl text-red-400">{getStateMessage()}</h1>;
-};
-
 const Home: NextPage = () => {
   // const  = trpc.example.hello.useQuery({ text: "from tRPC" });
   const { data, isLoading, isError, refetch } = trpc.idea.getAllIdeas.useQuery(
@@ -135,6 +105,10 @@ const Home: NextPage = () => {
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
         />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        />
       </Head>
 
       <main className="flex min-h-screen w-full flex-col items-center bg-slate-100 py-10 px-4">
@@ -142,7 +116,7 @@ const Home: NextPage = () => {
           Blazingly Fast 497s
         </h1>
         {isLoading || isError ? (
-          <HandleServerState load={isLoading} error={isError} />
+          <RenderServerState load={isLoading} error={isError} />
         ) : (
           <PageContent data={data} refetch={refetch} />
         )}

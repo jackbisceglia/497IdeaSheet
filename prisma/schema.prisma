@@ -16,13 +16,4 @@ model Idea {
     description String
     createdAt   DateTime @default(now())
     rating      Int      @default(0)
-    Rating      Rating[]
-}
-
-model Rating {
-    id        String   @id @default(cuid())
-    idea      Idea     @relation(fields: [ideaId], references: [id])
-    ideaId    String
-    rating    Int
-    createdAt DateTime @default(now())
 }

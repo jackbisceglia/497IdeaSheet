@@ -38,4 +38,31 @@ export const ideaRouter = t.router({
 
     return res;
   }),
+  rateIdea: t.procedure
+    .input(
+      z.object({
+        id: z.string(),
+        type: z.enum(["like", "dislike"]),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { type, id } = input;
+
+      if (!input || !type || !["like", "dislike"].includes(type)) {
+        return { error: "Missing idea id" };
+      }
+
+      const res = await ctx.prisma.idea.update({
+        where: { id },
+        data: {
+          rating: type === "like" ? { increment: 1 } : { decrement: 1 },
+        },
+      });
+
+      if (!res) {
+        return { error: "Idea not found" };
+      }
+
+      return res;
+    }),
 });
