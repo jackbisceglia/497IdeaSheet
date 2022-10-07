@@ -60,13 +60,18 @@ const PageContent = ({ data, refetch }: PageContentTypes) => {
     />
   ));
 
+  const buttonColor = shouldShowInputForm
+    ? "bg-red-400 text-red-800"
+    : "bg-emerald-400 text-emerald-800";
+
   return (
     <>
       <button
         onClick={toggleInputForm}
-        className="fixed left-10 bottom-10 z-10 rounded-md bg-emerald-400 px-3 py-2 font-semibold text-emerald-800"
+        className={`fixed left-10 bottom-10 z-10 rounded-md px-3 py-2 font-semibold ${buttonColor}`}
       >
-        Add Idea
+        {shouldShowInputForm ? "Cancel" : "Add Idea"}
+        {/* Add Idea */}
       </button>
       <h3 className="py-4 text-xl font-semibold  text-emerald-800 underline sm:text-2xl">
         {viewTitle}
