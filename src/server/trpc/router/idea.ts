@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const ideaRouter = t.router({
   getAllIdeas: t.procedure.query(({ ctx }) => {
-    return ctx.prisma.idea.findMany({ orderBy: { createdAt: "desc" } });
+    return ctx.prisma.idea.findMany({ orderBy: { rating: "desc" } });
   }),
   submitIdea: t.procedure
     .input(
