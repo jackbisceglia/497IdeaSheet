@@ -1,10 +1,46 @@
 import { t } from "../trpc";
 import { z } from "zod";
 
+const slugify = (str: string) => {
+  return str
+    .toLowerCase()
+    .replace(/[^a-z0-9 -]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+};
+
 export const ideaRouter = t.router({
   getAllIdeas: t.procedure.query(({ ctx }) => {
     return ctx.prisma.idea.findMany({ orderBy: { rating: "desc" } });
   }),
+  getIdeaNoteByIdea: t.procedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const res = await ctx.prisma.ideaNote.findMany({
+        where: {
+          ideaId: input,
+        },
+      });
+      console.log(res);
+    }),
+  getIdeaBySlug: t.procedure.input(z.string()).query(async ({ ctx, input }) => {
+    const res = await ctx.prisma.idea.findUnique({
+      where: {
+        slug: input,
+      },
+      include: {
+        ideaNotes: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+      },
+    });
+    return res;
+  }),
+  // getIdeaNoteById: t.procedure.input(z.string()).query(async ({ctx, input}) => {
+
+  // }),
   submitIdea: t.procedure
     .input(
       z.object({
@@ -21,6 +57,26 @@ export const ideaRouter = t.router({
         data: {
           title: input.title,
           description: input.description,
+          slug: slugify(input.title),
+        },
+      });
+    }),
+  submitIdeaNote: t.procedure
+    .input(
+      z.object({
+        message: z.string(),
+        ideaId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (!input || !input.message) {
+        return { error: "Missing title or description" };
+      }
+
+      return await ctx.prisma.ideaNote.create({
+        data: {
+          text: input.message,
+          ideaId: input.ideaId,
         },
       });
     }),
@@ -30,9 +86,13 @@ export const ideaRouter = t.router({
     if (!input || !id) {
       return { error: "Missing idea id" };
     }
-
+    const deleteIdeaNotes = await ctx.prisma.ideaNote.deleteMany({
+      where: {
+        ideaId: id,
+      },
+    });
     const res = await ctx.prisma.idea.delete({ where: { id } });
-    if (!res) {
+    if (!res || deleteIdeaNotes) {
       return { error: "Idea not found" };
     }
 

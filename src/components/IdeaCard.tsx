@@ -1,4 +1,5 @@
 import { Idea } from "@prisma/client";
+import Link from "next/link";
 import { UseTRPCMutationResult } from "@trpc/react/shared";
 
 const IdeaCard = ({
@@ -17,7 +18,7 @@ const IdeaCard = ({
     return " ";
   };
   const getTextColor = () => {
-    if (idea.rating > 0) return "text-green-400";
+    if (idea.rating > 0) return "text-emerald-500";
     else if (idea.rating < 0) return "text-red-400";
     return "text-gray-400";
   };
@@ -40,33 +41,38 @@ const IdeaCard = ({
       <div className="flex h-max w-min flex-col items-end justify-center">
         <button
           onClick={() => handleRate("like")}
-          className="py-1 text-emerald-400 transition-colors duration-200 hover:text-emerald-600"
+          className="py-1 text-emerald-500 transition-colors duration-200 hover:text-emerald-600"
         >
           <span className="material-symbols-outlined">thumb_up</span>
         </button>
         <button
           onClick={() => handleRate("dislike")}
-          className=" text-emerald-400 transition-colors duration-200 hover:text-emerald-600"
+          className=" text-emerald-500 transition-colors duration-200 hover:text-emerald-600"
         >
           <span className="material-symbols-outlined">thumb_down</span>
         </button>
       </div>
 
       {/* Center */}
-      <div className="w-grow flex flex-grow flex-col items-start px-4">
-        <h4 className="text-xl font-semibold">
-          {idea.title}{" "}
-          <span className={`px-2 ${getTextColor()}`}>
-            {getPrefix()} {Math.abs(idea.rating)}
+      <div className="w-grow flex flex-grow flex-col items-start px-4 text-emerald-900">
+        <div className="flex">
+          <Link href={`/${idea.slug}`}>
+            <h4 className="cursor-pointer text-xl font-semibold hover:underline">
+              {idea.title}{" "}
+            </h4>
+          </Link>
+          <span className={`px-2 text-lg font-bold ${getTextColor()}`}>
+            {getPrefix()}
+            {Math.abs(idea.rating)}
           </span>
-        </h4>
+        </div>
         <p className="w-full py-2">{idea.description}</p>
       </div>
       {/* Right */}
       <div className="flex w-min flex-col items-end justify-between border-2 ">
         <button
           onClick={handleDelete}
-          className="text-emerald-400 transition-colors duration-200 hover:text-emerald-600"
+          className="text-emerald-500 transition-colors duration-200 hover:text-emerald-600"
         >
           <span className="material-symbols-outlined">delete</span>
         </button>

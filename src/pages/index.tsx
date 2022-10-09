@@ -1,9 +1,13 @@
+/* eslint-disable @next/next/no-page-custom-font */
+/* eslint-disable @next/next/google-font-display */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import AddIdeaForm from "../components/AddIdeaForm";
 import Head from "next/head";
 import { Idea } from "@prisma/client";
 import IdeaCard from "../components/IdeaCard";
+import Link from "next/link";
 import type { NextPage } from "next";
+import SubHeader from "../components/SubHeader";
 import { trpc } from "../utils/trpc";
 import { useState } from "react";
 
@@ -73,9 +77,7 @@ const PageContent = ({ data, refetch }: PageContentTypes) => {
         {shouldShowInputForm ? "Cancel" : "Add Idea"}
         {/* Add Idea */}
       </button>
-      <h3 className="py-4 text-xl font-semibold  text-emerald-800 underline sm:text-2xl">
-        {viewTitle}
-      </h3>
+      <SubHeader>{viewTitle}</SubHeader>
       {shouldShowInputForm ? (
         <AddIdeaForm
           refetch={refetch}
@@ -117,9 +119,11 @@ const Home: NextPage = () => {
       </Head>
 
       <main className="flex min-h-screen w-full flex-col items-center bg-slate-100 py-10 px-4">
-        <h1 className="py-4 text-3xl font-black text-emerald-500 sm:text-5xl">
-          Blazingly Fast 497s
-        </h1>
+        <Link href="/">
+          <h1 className="cursor-pointer py-4 text-3xl font-black text-emerald-500 sm:text-5xl">
+            Blazingly Fast 497s
+          </h1>
+        </Link>
         {isLoading || isError ? (
           <RenderServerState load={isLoading} error={isError} />
         ) : (

@@ -28,11 +28,7 @@ const validateFormData = ({ title, description }: IdeaFormType) => {
   return title && description && title.length > 0 && description.length > 0;
 };
 
-function AddIdeaForm({
-  refetch,
-  addIdeaMutation,
-  toggleScreen,
-}: AddIdeaFormPageProps) {
+function AddIdeaForm({ refetch, toggleScreen }: AddIdeaFormPageProps) {
   const mutation = trpc.idea.submitIdea.useMutation({
     async onSuccess() {
       // refetches posts after a post is added
